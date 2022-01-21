@@ -9,10 +9,9 @@ import (
 	"time"
 )
 
-var tracingClient = apmhttp.WrapClient(http.DefaultClient)
-
 func main() {
 	rand.Seed(time.Now().UnixNano())
+	mux := http.NewServeMux()
 
 	port := os.Getenv("PORT")
 
@@ -29,11 +28,11 @@ func main() {
 	player := player{store: store, words: words}
 	server := server{player: player}
 
-	http.HandleFunc("/new", server.NewGame)
-	http.HandleFunc("/guess", server.Guess)
+	mux.HandleFunc("/new", server.NewGame)
+	mux.HandleFunc("/guess", server.Guess)
 
 	log.Printf("Serving with %d words", len(words))
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
+	if err := http.ListenAndServe(":"+port, apmhttp.Wrap(mux)); err != nil {
 		log.Fatal(err)
 	}
 
