@@ -1,12 +1,15 @@
 package main
 
 import (
+	"go.elastic.co/apm/module/apmhttp"
 	"log"
 	"math/rand"
 	"net/http"
 	"os"
 	"time"
 )
+
+var tracingClient = apmhttp.WrapClient(http.DefaultClient)
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
