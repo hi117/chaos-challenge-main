@@ -5,3 +5,7 @@ What I found strange was that it was spending quite a bit of time doing exponent
 I would say that this is most likely an issue with the cert on either the server's or client's side since its happening before the handshake completes and is part of the standard library, which should be efficient under most circumstances. A really big certificate (possibly chain) on either the client (if mutual TLS) or server side seems to be the most likely cause.
 see https://github.com/golang/go/blob/go1.17.5/src/crypto/tls/handshake_server_tls13.go#L622
 end 30 mins, moving on
+continuing:
+A gotcha here is the part of the flame graph calling rsa.decrypt(). signing in rsa is actually decrypting the plaintext and attaching as a signature.
+As a final RCA, I would bet that the issue is that the server's cert params are really big.
+Based on the flame graph, it has to either be the ciphertext is big (which is a static sized hash, which basically rules that out), or the cert's param sizes are big.
